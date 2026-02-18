@@ -27,9 +27,14 @@ export default function Home() {
       formData.append("file", resumeFile!);
       formData.append("jd", jd);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analyze-pdf`
-, {
-        method: "POST",
+ const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_URL) {
+  throw new Error("API URL not defined");
+}
+
+const response = await fetch(`${API_URL}/analyze-pdf`, {
+ method: "POST",
         body: formData,
         // No "Content-Type" header — browser sets multipart automatically
       });
