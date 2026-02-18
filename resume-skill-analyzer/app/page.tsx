@@ -27,7 +27,8 @@ export default function Home() {
       formData.append("file", resumeFile!);
       formData.append("jd", jd);
 
-      const response = await fetch("http://127.0.0.1:8000/analyze-pdf", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analyze-pdf`
+, {
         method: "POST",
         body: formData,
         // No "Content-Type" header — browser sets multipart automatically
