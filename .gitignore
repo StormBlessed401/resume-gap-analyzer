@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Node
+node_modules/
+.next/
+out/
+
+# Environment
+.env
+.python-version
+
+# OS
+.DS_Store
+Thumbs.db
