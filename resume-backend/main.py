@@ -1,46 +1,52 @@
-from fastapi import UploadFile, File, Form # Added Form to handle string inputs in multipart requests
-import pdfplumber
-
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
-from pydantic import BaseModel
+import pdfplumber
 from services.skill_analyzer import analyze_skills
 
 app = FastAPI()
 
+# ==============================
+# CORS CONFIGURATION (VERY IMPORTANT)
+# ==============================
+
+origins = [
+    "http://localhost:3000",  # local development
+    "https://resume-gap-analyzer-qgpsb65pm-saurabhs-projects-73c2d3be.vercel.app",  # your deployed frontend
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --------- Request Model ---------
-# Defines the structure of incoming JSON data
-class TextInput(BaseModel):
-    resume: str
-    jd: str
+# ==============================
+# ROOT ROUTE (Health Check)
+# ==============================
 
-# --------- API Endpoint ---------
-# Receives request and forwards it to the ML service
-@app.post("/analyze")
-def analyze(data: TextInput):
-    return analyze_skills(data.resume, data.jd)
+@app.get("/")
+def root():
+    return {"message": "Resume Gap Analyzer Backend is Live 🚀"}
+
+
+# ==============================
+# PDF ANALYSIS ROUTE
+# ==============================
 
 @app.post("/analyze-pdf")
-async def analyze_pdf(file: UploadFile = File(...), jd: str = Form("")): # Changed to Form for multipart support
-
-    # Read PDF file
+async def analyze_pdf(
+    file: UploadFile = File(...),
+    jd: str = Form(...)
+):
+    # Extract text from uploaded PDF
+    text = ""
     with pdfplumber.open(file.file) as pdf:
-        resume_text = ""
         for page in pdf.pages:
-            resume_text += page.extract_text() or ""
-    
-    # Moved inside the function scope so resume_text is accessible
-    print("Extracted resume text length:", len(resume_text))
+            text += page.extract_text() or ""
 
-    # Use existing ML logic
-    result = analyze_skills(resume_text, jd)
+    # Analyze skills
+    result = analyze_skills(text, jd)
 
     return result
