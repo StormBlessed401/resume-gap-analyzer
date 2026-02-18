@@ -38,7 +38,12 @@ const response = await fetch(`${API_URL}/analyze-pdf`, {
         body: formData,
         // No "Content-Type" header — browser sets multipart automatically
       });
-      const data = await response.json();
+      if (!response.ok) {
+  throw new Error("Server error");
+}
+
+const data = await response.json();
+
       setMatchedSkills(data.matched_skills);
       setMissingSkills(data.missing_skills);
       setAnalyzed(true);
